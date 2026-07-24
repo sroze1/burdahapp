@@ -29,7 +29,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Burdah catalog data (title, PDF asset path, metadata) loads through a repository layer from a bundled JSON manifest, verified against the Khadija RA entry
   3. A test screen shows the chosen calligraphic Arabic font rendering correctly (letters joined, weights intact) alongside the turquoise/deep-blue/gold/burgundy color palette
   4. Reusable themed widgets (geometric border, gold CTA button) render correctly and are ready to reuse across screens
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Walking skeleton: Flutter scaffold, data layer (JSON catalog + repository), theme system (light + dark with green/gold/cream tokens), bundled Arabic fonts, and verification test screen
+- [ ] 01-02-PLAN.md — Design system widgets: SVG star tessellation geometric border frames (full-screen + card-sized) and gold CTA button
 **UI hint**: yes
 
 ### Phase 2: Reading Experience (PDF Viewer)
