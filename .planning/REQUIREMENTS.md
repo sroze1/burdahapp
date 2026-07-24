@@ -74,30 +74,30 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SPLSH-01 | — | Pending |
-| SPLSH-02 | — | Pending |
-| SPLSH-03 | — | Pending |
-| SPLSH-04 | — | Pending |
-| NAV-01 | — | Pending |
-| NAV-02 | — | Pending |
-| NAV-03 | — | Pending |
-| READ-01 | — | Pending |
-| READ-02 | — | Pending |
-| READ-03 | — | Pending |
-| READ-04 | — | Pending |
-| DSGN-01 | — | Pending |
-| DSGN-02 | — | Pending |
-| DSGN-03 | — | Pending |
-| DSGN-04 | — | Pending |
-| ARCH-01 | — | Pending |
-| ARCH-02 | — | Pending |
-| ARCH-03 | — | Pending |
+| SPLSH-01 | Phase 4 | Pending |
+| SPLSH-02 | Phase 4 | Pending |
+| SPLSH-03 | Phase 4 | Pending |
+| SPLSH-04 | Phase 4 | Pending |
+| NAV-01 | Phase 3 | Pending |
+| NAV-02 | Phase 3 | Pending |
+| NAV-03 | Phase 3 | Pending |
+| READ-01 | Phase 2 | Pending |
+| READ-02 | Phase 2 | Pending |
+| READ-03 | Phase 2 | Pending |
+| READ-04 | Phase 2 | Pending |
+| DSGN-01 | Phase 1 | Pending |
+| DSGN-02 | Phase 1 | Pending |
+| DSGN-03 | Phase 1 | Pending |
+| DSGN-04 | Phase 2 | Pending |
+| ARCH-01 | Phase 2 | Pending |
+| ARCH-02 | Phase 1 | Pending |
+| ARCH-03 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 18 total
-- Mapped to phases: 0
-- Unmapped: 18 ⚠️
+- Mapped to phases: 18
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-24*
-*Last updated: 2026-07-24 after initial definition*
+*Last updated: 2026-07-24 after roadmap creation*
