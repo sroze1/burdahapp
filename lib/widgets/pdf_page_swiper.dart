@@ -64,7 +64,10 @@ class _PdfPageSwiperState extends State<PdfPageSwiper> {
       widget.pdfAsset,
       loadingBuilder: (context) =>
           const Center(child: CircularProgressIndicator()),
-      errorBuilder: (context, error, stackTrace) => _buildErrorState(context),
+      errorBuilder: (context, error, stackTrace) {
+        debugPrint('PDF load failed: $error\n$stackTrace');
+        return _buildErrorState(context);
+      },
       builder: (context, document) {
         final pageCount = document?.pages.length ?? 0;
         return PageView.builder(

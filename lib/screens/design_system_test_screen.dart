@@ -82,6 +82,9 @@ class _DesignSystemTestScreenState extends State<DesignSystemTestScreen> {
                     );
                   }
                   if (snapshot.hasError) {
+                    debugPrint(
+                      'Burdah catalog load failed: ${snapshot.error}',
+                    );
                     // UI-SPEC Copywriting Contract — error state.
                     return Padding(
                       padding: const EdgeInsetsDirectional.symmetric(
