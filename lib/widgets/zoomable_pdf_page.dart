@@ -58,8 +58,8 @@ class _ZoomablePdfPageState extends State<ZoomablePdfPage>
     final zoomed = scale > ZoomablePdfPage._zoomEpsilon;
     if (_isZoomed != zoomed) {
       setState(() => _isZoomed = zoomed);
+      widget.onZoomChanged(zoomed);
     }
-    widget.onZoomChanged(zoomed);
   }
 
   void _handleDoubleTap() {
