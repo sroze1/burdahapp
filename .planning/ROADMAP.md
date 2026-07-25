@@ -33,15 +33,15 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. A test screen shows the chosen calligraphic Arabic font rendering correctly (letters joined, weights intact) alongside the turquoise/deep-blue/gold/burgundy color palette
   4. Reusable themed widgets (geometric border, gold CTA button) render correctly and are ready to reuse across screens
 
-**Plans:** 2 plans
+**Plans:** 2/2 plans executed
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — Walking skeleton: Flutter scaffold, data layer (JSON catalog + repository), theme system (light + dark with green/gold/cream tokens), bundled Arabic fonts, and verification test screen
+- [x] 01-01-PLAN.md — Walking skeleton: Flutter scaffold, data layer (JSON catalog + repository), theme system (light + dark with green/gold/cream tokens), bundled Arabic fonts, and verification test screen
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Design system widgets: SVG star tessellation geometric border frames (full-screen + card-sized) and gold CTA button
+- [x] 01-02-PLAN.md — Design system widgets: SVG star tessellation geometric border frames (full-screen + card-sized) and gold CTA button
 
 **UI hint**: yes
 
@@ -101,7 +101,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation, Data Architecture & Design System | 0/TBD | Not started | - |
+| 1. Foundation, Data Architecture & Design System | 2/2 | In Progress|  |
 | 2. Reading Experience (PDF Viewer) | 0/TBD | Not started | - |
 | 3. Navigation & Primary User Flow | 0/TBD | Not started | - |
 | 4. Splash Experience & Release Readiness | 0/TBD | Not started | - |
