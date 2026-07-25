@@ -34,7 +34,8 @@ class _DesignSystemTestScreenState extends State<DesignSystemTestScreen> {
   @override
   void initState() {
     super.initState();
-    _burdahsFuture = AssetBurdahRepository().getAll();
+    _burdahsFuture = AssetBurdahRepository().getAll()
+      ..then((burdahs) => _loadedBurdahs = burdahs);
   }
 
   void _handleReadBurdahPressed() {
@@ -115,11 +116,6 @@ class _DesignSystemTestScreenState extends State<DesignSystemTestScreen> {
                     );
                   }
                   final burdahs = snapshot.data ?? const <Burdah>[];
-                  // Store for the GoldCtaButton below, which lives outside
-                  // this FutureBuilder. Plain field assignment (no
-                  // setState) — this FutureBuilder already rebuilds when
-                  // the future resolves, so no extra rebuild is needed.
-                  _loadedBurdahs = burdahs;
                   if (burdahs.isEmpty) {
                     // UI-SPEC Copywriting Contract — empty state.
                     return Padding(
