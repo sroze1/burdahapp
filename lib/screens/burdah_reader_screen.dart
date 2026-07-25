@@ -26,7 +26,12 @@ class BurdahReaderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final burdahColors = Theme.of(context).extension<BurdahColors>()!;
+    final themeBurdahColors = Theme.of(context).extension<BurdahColors>();
+    assert(
+      themeBurdahColors != null,
+      'BurdahColors extension missing from ThemeData — check theme setup',
+    );
+    final burdahColors = themeBurdahColors ?? BurdahColors.light;
 
     return Scaffold(
       appBar: AppBar(
