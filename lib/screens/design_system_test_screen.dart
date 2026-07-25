@@ -6,6 +6,7 @@ import '../theme/app_theme_extension.dart';
 import '../widgets/geometric_border_frame.dart';
 import '../widgets/geometric_card_frame.dart';
 import '../widgets/gold_cta_button.dart';
+import 'burdah_reader_screen.dart';
 
 /// Throwaway verification screen for Phase 1 (walking skeleton).
 ///
@@ -25,10 +26,35 @@ class DesignSystemTestScreen extends StatefulWidget {
 class _DesignSystemTestScreenState extends State<DesignSystemTestScreen> {
   late final Future<List<Burdah>> _burdahsFuture;
 
+  /// Holds the loaded catalog once the [FutureBuilder] below resolves, so
+  /// the `GoldCtaButton` (rendered outside that `FutureBuilder`) can read
+  /// the first burdah without re-fetching from the repository.
+  List<Burdah> _loadedBurdahs = const <Burdah>[];
+
   @override
   void initState() {
     super.initState();
     _burdahsFuture = AssetBurdahRepository().getAll();
+  }
+
+  void _handleReadBurdahPressed() {
+    if (_loadedBurdahs.isEmpty) {
+      // Fallback if burdahs haven't loaded yet (e.g. FutureBuilder still
+      // waiting or errored) — Phase 1 design-verification no-op.
+      // ignore: avoid_print
+      print(
+        'GoldCtaButton tapped before burdahs loaded (Phase 1 design '
+        'verification — no-op)',
+      );
+      return;
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            BurdahReaderScreen(burdah: _loadedBurdahs.first),
+      ),
+    );
   }
 
   @override
@@ -81,6 +107,11 @@ class _DesignSystemTestScreenState extends State<DesignSystemTestScreen> {
                     );
                   }
                   final burdahs = snapshot.data ?? const <Burdah>[];
+                  // Store for the GoldCtaButton below, which lives outside
+                  // this FutureBuilder. Plain field assignment (no
+                  // setState) — this FutureBuilder already rebuilds when
+                  // the future resolves, so no extra rebuild is needed.
+                  _loadedBurdahs = burdahs;
                   if (burdahs.isEmpty) {
                     // UI-SPEC Copywriting Contract — empty state.
                     return Padding(
@@ -265,15 +296,7 @@ class _DesignSystemTestScreenState extends State<DesignSystemTestScreen> {
               Center(
                 child: GoldCtaButton(
                   label: 'Read Burdah',
-                  onPressed: () {
-                    // Design-verification element only — real navigation
-                    // is wired up in Phase 3 (NAV-01).
-                    // ignore: avoid_print
-                    print(
-                      'GoldCtaButton tapped (Phase 1 design verification '
-                      '— no-op)',
-                    );
-                  },
+                  onPressed: _handleReadBurdahPressed,
                 ),
               ),
 
