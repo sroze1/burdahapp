@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../data/models/burdah.dart';
 import '../data/repositories/asset_burdah_repository.dart';
 import '../theme/app_theme_extension.dart';
+import '../widgets/geometric_border_frame.dart';
+import '../widgets/geometric_card_frame.dart';
+import '../widgets/gold_cta_button.dart';
 
 /// Throwaway verification screen for Phase 1 (walking skeleton).
 ///
@@ -186,6 +189,92 @@ class _DesignSystemTestScreenState extends State<DesignSystemTestScreen> {
                     textTheme,
                   ),
                 ],
+              ),
+
+              const Divider(height: 32),
+
+              _sectionHeading(
+                'Geometric Border Frame (DSGN-01, D-05, D-06, D-07)',
+                textTheme,
+              ),
+              const SizedBox(height: 8),
+              // Constrained to the full-screen SVG's own aspect ratio
+              // (viewBox 400x600, 2:3) so BoxFit.contain fills the box
+              // cleanly with no letterboxed gap — a mismatched demo
+              // container aspect ratio would otherwise letterbox the
+              // pattern and let the centered content text overlap its
+              // edge.
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 240),
+                  child: AspectRatio(
+                    aspectRatio: 400 / 600,
+                    child: GeometricBorderFrame(
+                      child: Center(
+                        child: Text(
+                          'Content stays clean inside the border (D-05)',
+                          style: textTheme.bodyMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const Divider(height: 32),
+
+              _sectionHeading(
+                'Geometric Card Frame (DSGN-01, D-08)',
+                textTheme,
+              ),
+              const SizedBox(height: 8),
+              // Constrained to the card SVG's own aspect ratio (viewBox
+              // 240x160, 3:2) for the same letterboxing reason as above.
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 320),
+                  child: AspectRatio(
+                    aspectRatio: 240 / 160,
+                    child: GeometricCardFrame(
+                      child: FutureBuilder<List<Burdah>>(
+                        future: _burdahsFuture,
+                        builder: (context, snapshot) {
+                          final burdahs = snapshot.data ?? const <Burdah>[];
+                          final label = burdahs.isNotEmpty
+                              ? burdahs.first.title
+                              : 'Burdah of Sayyida Khadija RA';
+                          return Center(
+                            child: Text(
+                              label,
+                              style: textTheme.titleMedium,
+                              textAlign: TextAlign.center,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const Divider(height: 32),
+
+              _sectionHeading('Gold CTA Button (D-02)', textTheme),
+              const SizedBox(height: 8),
+              Center(
+                child: GoldCtaButton(
+                  label: 'Read Burdah',
+                  onPressed: () {
+                    // Design-verification element only — real navigation
+                    // is wired up in Phase 3 (NAV-01).
+                    // ignore: avoid_print
+                    print(
+                      'GoldCtaButton tapped (Phase 1 design verification '
+                      '— no-op)',
+                    );
+                  },
+                ),
               ),
 
               const SizedBox(height: 48),

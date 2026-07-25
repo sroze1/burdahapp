@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160">
+  <defs>
+    <polygon id="starBig" points="16.0,0.0 6.01,2.49 11.31,11.31 2.49,6.01 0.0,16.0 -2.49,6.01 -11.31,11.31 -6.01,2.49 -16.0,0.0 -6.01,-2.49 -11.31,-11.31 -2.49,-6.01 -0.0,-16.0 2.49,-6.01 11.31,-11.31 6.01,-2.49" />
+    <polygon id="starSmall" points="9.0,0.0 3.42,1.42 6.36,6.36 1.42,3.42 0.0,9.0 -1.42,3.42 -6.36,6.36 -3.42,1.42 -9.0,0.0 -3.42,-1.42 -6.36,-6.36 -1.42,-3.42 -0.0,-9.0 1.42,-3.42 6.36,-6.36 3.42,-1.42" />
+    <polygon id="diamond" points="0,-4 4,0 0,4 -4,0" />
+  </defs>
+  <g fill="none" stroke="#000000" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+    <use href="#starBig" x="22" y="22" />
+    <use href="#starBig" x="218" y="22" />
+    <use href="#starBig" x="22" y="138" />
+    <use href="#starBig" x="218" y="138" />
+    <use href="#starSmall" x="62" y="22" />
+    <use href="#diamond" x="42.0" y="22" />
+    <use href="#starSmall" x="102" y="22" />
+    <use href="#diamond" x="82.0" y="22" />
+    <use href="#starSmall" x="142" y="22" />
+    <use href="#diamond" x="122.0" y="22" />
+    <use href="#diamond" x="198.0" y="22" />
+    <use href="#starSmall" x="62" y="138" />
+    <use href="#diamond" x="42.0" y="138" />
+    <use href="#starSmall" x="102" y="138" />
+    <use href="#diamond" x="82.0" y="138" />
+    <use href="#starSmall" x="142" y="138" />
+    <use href="#diamond" x="122.0" y="138" />
+    <use href="#diamond" x="198.0" y="138" />
+    <use href="#starSmall" x="22" y="62" />
+    <use href="#diamond" x="22" y="42.0" />
+    <use href="#diamond" x="22" y="118.0" />
+    <use href="#starSmall" x="218" y="62" />
+    <use href="#diamond" x="218" y="42.0" />
+    <use href="#diamond" x="218" y="118.0" />
+    <rect x="12.1" y="12.1" width="215.8" height="135.8" rx="4" />
+  </g>
+</svg>
