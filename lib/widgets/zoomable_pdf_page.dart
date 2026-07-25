@@ -37,6 +37,7 @@ class _ZoomablePdfPageState extends State<ZoomablePdfPage>
   late final AnimationController _animController;
   Animation<Matrix4>? _animation;
   bool _isZoomed = false;
+  Offset? _doubleTapPosition;
 
   @override
   void initState() {
@@ -63,9 +64,15 @@ class _ZoomablePdfPageState extends State<ZoomablePdfPage>
 
   void _handleDoubleTap() {
     final s = ZoomablePdfPage._doubleTapScale;
-    final end = _isZoomed
-        ? Matrix4.identity()
-        : (Matrix4.identity()..scaleByDouble(s, s, 1.0, 1.0));
+    final Matrix4 end;
+    if (_isZoomed) {
+      end = Matrix4.identity();
+    } else {
+      final pos = _doubleTapPosition ?? Offset.zero;
+      end = Matrix4.identity()
+        ..translate(pos.dx * (1 - s), pos.dy * (1 - s))
+        ..scaleByDouble(s, s, 1.0, 1.0);
+    }
     _animation = Matrix4Tween(begin: _controller.value, end: end).animate(
       CurvedAnimation(parent: _animController, curve: Curves.easeInOut),
     );
@@ -83,6 +90,7 @@ class _ZoomablePdfPageState extends State<ZoomablePdfPage>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onDoubleTapDown: (details) => _doubleTapPosition = details.localPosition,
       onDoubleTap: _handleDoubleTap,
       child: InteractiveViewer(
         transformationController: _controller,
