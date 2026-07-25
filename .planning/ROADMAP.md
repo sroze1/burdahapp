@@ -59,7 +59,12 @@ Plans:
   4. Reader screen displays with Islamic geometric border/chrome styling from the Phase 1 design system
   5. PDF opens and pages navigate correctly with the device in airplane mode (no network dependency)
 
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+**Wave 1**
+
+- [ ] 02-01-PLAN.md — End-to-end PDF reading experience: pdfrx integration, page-by-page swipe with RTL order, pinch-to-zoom with swipe-lock, Islamic-themed reader chrome, human verification checkpoint
+
 **UI hint**: yes
 
 ### Phase 3: Navigation & Primary User Flow
