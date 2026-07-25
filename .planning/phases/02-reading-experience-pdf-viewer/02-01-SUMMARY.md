@@ -178,3 +178,13 @@ None - no external service configuration required.
 ---
 *Phase: 02-reading-experience-pdf-viewer*
 *Completed: 2026-07-25*
+
+## Self-Check: PASSED
+
+- FOUND: lib/widgets/zoomable_pdf_page.dart
+- FOUND: lib/widgets/pdf_page_swiper.dart
+- FOUND: lib/screens/burdah_reader_screen.dart
+- FOUND: .planning/phases/02-reading-experience-pdf-viewer/02-01-SUMMARY.md
+- FOUND commit: e11c156
+- FOUND commit: 22d22e8
+- FOUND commit: ed78ce8
