@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:pdfrx/pdfrx.dart';
 
-/// Pinch-to-zoom wrapper around a single rendered PDF page (READ-02).
+/// Zoomable wrapper around a single rendered PDF page (READ-02).
 ///
-/// `pdfrx 2.4.7`'s [PdfPageView] is a plain image-rendering widget — it
-/// exposes no zoom/scale API of its own (confirmed by reading the pinned
-/// package source, resolving RESEARCH.md Open Question 1 / Assumption A1).
-/// Pinch-to-zoom is therefore composed externally via [InteractiveViewer]
-/// driven by a [TransformationController].
+/// Uses double-tap to enter/exit zoom mode, with pinch-to-zoom for fine
+/// adjustment once zoomed. This avoids a fundamental Flutter gesture conflict:
+/// InteractiveViewer's ScaleGestureRecognizer claims single-finger horizontal
+/// drags even at 1x scale, blocking PageView from receiving swipe gestures.
+/// Disabling both panEnabled and scaleEnabled when not zoomed makes
+/// InteractiveViewer passive, letting PageView handle page-turn swiping.
 ///
-/// Each page gets its own, independently-owned [TransformationController]
-/// (constructed in [State], never shared or hoisted to a parent) so zoom on
-/// one page can never leak into another page's state (RESEARCH.md
-/// Pitfall 1). The controller's scale is reported to [onZoomChanged] with a
-/// small epsilon (`1.01`) so floating-point jitter at exactly `1.0` doesn't
-/// spuriously toggle the parent [PdfPageSwiper]'s swipe-lock.
+/// Each page gets its own TransformationController (never shared) so zoom
+/// on one page cannot leak into another (RESEARCH.md Pitfall 1).
 class ZoomablePdfPage extends StatefulWidget {
   const ZoomablePdfPage({
     super.key,
@@ -23,52 +20,81 @@ class ZoomablePdfPage extends StatefulWidget {
     required this.onZoomChanged,
   });
 
-  /// The already-loaded PDF document (from [PdfDocumentViewBuilder]).
   final PdfDocument document;
-
-  /// The 1-indexed page number to render.
   final int pageNumber;
-
-  /// Called with `true` when this page is zoomed in past 1.0x, and `false`
-  /// when it returns to 1.0x. The parent uses this to lock/unlock swiping.
   final ValueChanged<bool> onZoomChanged;
 
-  /// Scale epsilon avoiding float jitter around 1.0 (RESEARCH.md Pattern 2).
   static const double _zoomEpsilon = 1.01;
+  static const double _doubleTapScale = 2.5;
 
   @override
   State<ZoomablePdfPage> createState() => _ZoomablePdfPageState();
 }
 
-class _ZoomablePdfPageState extends State<ZoomablePdfPage> {
-  late final TransformationController _controller;
+class _ZoomablePdfPageState extends State<ZoomablePdfPage>
+    with SingleTickerProviderStateMixin {
+  final TransformationController _controller = TransformationController();
+  late final AnimationController _animController;
+  Animation<Matrix4>? _animation;
+  bool _isZoomed = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = TransformationController();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    )..addListener(() {
+        if (_animation != null) {
+          _controller.value = _animation!.value;
+        }
+      });
     _controller.addListener(_handleTransformChanged);
   }
 
   void _handleTransformChanged() {
     final scale = _controller.value.getMaxScaleOnAxis();
-    widget.onZoomChanged(scale > ZoomablePdfPage._zoomEpsilon);
+    final zoomed = scale > ZoomablePdfPage._zoomEpsilon;
+    if (_isZoomed != zoomed) {
+      setState(() => _isZoomed = zoomed);
+    }
+    widget.onZoomChanged(zoomed);
+  }
+
+  void _handleDoubleTap() {
+    final s = ZoomablePdfPage._doubleTapScale;
+    final end = _isZoomed
+        ? Matrix4.identity()
+        : (Matrix4.identity()..scaleByDouble(s, s, 1.0, 1.0));
+    _animation = Matrix4Tween(begin: _controller.value, end: end).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeInOut),
+    );
+    _animController.forward(from: 0);
   }
 
   @override
   void dispose() {
     _controller.removeListener(_handleTransformChanged);
+    _animController.dispose();
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return InteractiveViewer(
-      transformationController: _controller,
-      minScale: 1.0,
-      maxScale: 4.0,
-      child: PdfPageView(document: widget.document, pageNumber: widget.pageNumber),
+    return GestureDetector(
+      onDoubleTap: _handleDoubleTap,
+      child: InteractiveViewer(
+        transformationController: _controller,
+        minScale: 1.0,
+        maxScale: 4.0,
+        panEnabled: _isZoomed,
+        scaleEnabled: _isZoomed,
+        child: PdfPageView(
+          document: widget.document,
+          pageNumber: widget.pageNumber,
+        ),
+      ),
     );
   }
 }
