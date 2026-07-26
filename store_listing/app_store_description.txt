@@ -1,0 +1,28 @@
+App name: BurdahApp
+Category: Books & Reference
+Age rating: 4+ (no objectionable content)
+
+--- Subtitle (max 30 characters) ---
+Sacred Islamic poetry, read
+
+--- Description ---
+BurdahApp is a beautiful, distraction-free space for reading Islamic poetry, beginning with the Burdah of Sayyida Khadija RA — presented exactly as written, page by page, in its original Arabic calligraphy.
+
+Launch the app to a reverent animated splash screen: the golden domes of Madinah at sunset, the Bismillah shown in Arabic, transliteration, and English translation, accompanied by a brief recitation of Qari Abdul Basit 'Abd us-Samad — a calm, sacred moment before you begin reading.
+
+FEATURES
+
+• Faithful page-by-page PDF reading that preserves the original Arabic calligraphy exactly — no text extraction, just the authentic text as written
+• Natural right-to-left swipe navigation, the way a physical Arabic book is read
+• Double-tap to zoom into any page, with pinch to fine-tune, for close reading of the calligraphy
+• Elegant Turkish/Ghazali-inspired geometric design and calligraphic Arabic typography throughout
+• Fully offline — the poem is bundled with the app; no internet connection required to read
+
+BurdahApp's structure is built to grow, so more Burdah poems and Islamic texts can be added in future updates.
+
+Whether reading for reflection, study, or devotion, BurdahApp is built to let the sacred words speak for themselves, in sha Allah SWT.
+
+BurdahApp collects no personal data, requires no account, and makes no network requests.
+
+--- Keywords (comma-separated, max 100 characters) ---
+burdah,islamic poetry,quran,islam,arabic,qasida,khadija,recitation,dua,muslim,pdf reader,dhikr
