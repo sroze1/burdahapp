@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
 
-import 'screens/design_system_test_screen.dart';
+import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 
 /// Root application widget.
 ///
 /// Wires the light and dark [ThemeData] built in `theme/app_theme.dart`,
-/// switching between them via the system's `themeMode` (D-03). The home
-/// route is this phase's throwaway verification screen — real navigation
-/// (go_router) is configured starting Phase 3.
+/// switching between them via the system's `themeMode` (D-03). Navigation
+/// is driven by the declarative `go_router` config in `router/app_router.dart`
+/// (Phase 3) — see RESEARCH.md Pitfall 1 for why `MaterialApp.router` must
+/// be used instead of `MaterialApp(home:)`.
 class BurdahApp extends StatelessWidget {
   const BurdahApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'BurdahApp',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,
-      home: const DesignSystemTestScreen(),
+      routerConfig: appRouter,
     );
   }
 }
