@@ -59,11 +59,12 @@ Plans:
   4. Reader screen displays with Islamic geometric border/chrome styling from the Phase 1 design system
   5. PDF opens and pages navigate correctly with the device in airplane mode (no network dependency)
 
-**Plans:** 1/1 plans executed
+**Plans:** 2 plans (1 executed, 1 gap closure)
 Plans:
 **Wave 1**
 
-- [x] 02-01-PLAN.md — End-to-end PDF reading experience: pdfrx integration, page-by-page swipe with RTL order, pinch-to-zoom with swipe-lock, Islamic-themed reader chrome, human verification checkpoint
+- [x] 02-01-PLAN.md — End-to-end PDF reading experience: pdfrx integration, page-by-page swipe with RTL order, double-tap-to-zoom with swipe-lock, Islamic-themed reader chrome, human verification checkpoint
+- [ ] 02-02-PLAN.md — Gap closure: fix deprecated Matrix4.translate() call, formalize double-tap-to-zoom deviation in requirements/roadmap/verification
 
 **UI hint**: yes
 
