@@ -70,7 +70,7 @@ class _ZoomablePdfPageState extends State<ZoomablePdfPage>
     } else {
       final pos = _doubleTapPosition ?? Offset.zero;
       end = Matrix4.identity()
-        ..translate(pos.dx * (1 - s), pos.dy * (1 - s))
+        ..translateByDouble(pos.dx * (1 - s), pos.dy * (1 - s), 0.0, 1.0)
         ..scaleByDouble(s, s, 1.0, 1.0);
     }
     _animation = Matrix4Tween(begin: _controller.value, end: end).animate(
