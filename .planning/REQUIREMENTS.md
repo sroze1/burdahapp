@@ -23,7 +23,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Reading
 
 - [x] **READ-01**: User can view the Burdah of Sayyida Khadija RA as a page-by-page PDF with swipe navigation
-- [x] **READ-02**: User can pinch-to-zoom on any PDF page for detail
+- [x] **READ-02**: User can double-tap-to-zoom on any PDF page for detail (with pinch for fine-adjustment once zoomed)
 - [x] **READ-03**: PDF displays the original document faithfully (not extracted text)
 - [x] **READ-04**: Arabic content renders correctly with proper RTL layout
 

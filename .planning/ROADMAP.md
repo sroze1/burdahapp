@@ -54,7 +54,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
 
   1. User can open the Burdah PDF and swipe left/right to turn pages, book-like
-  2. User can pinch-to-zoom on any page without triggering an accidental page turn (swipe locked while zoomed, released on reset)
+  2. User can double-tap-to-zoom on any page without triggering an accidental page turn (swipe locked while zoomed, released on reset; pinch available for fine-adjustment once zoomed)
   3. PDF renders the original document exactly as authored (Arabic calligraphy and layout intact), with page-turn direction matching RTL expectations
   4. Reader screen displays with Islamic geometric border/chrome styling from the Phase 1 design system
   5. PDF opens and pages navigate correctly with the device in airplane mode (no network dependency)
