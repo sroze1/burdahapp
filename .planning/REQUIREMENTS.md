@@ -16,9 +16,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Navigation
 
-- [ ] **NAV-01**: User sees a home screen with a prominent "Burdah" button styled with Islamic geometric design
-- [ ] **NAV-02**: User can tap "Burdah" to open a list of available burdah poems
-- [ ] **NAV-03**: User can navigate back from any screen to the previous screen
+- [x] **NAV-01**: User sees a home screen with a prominent "Burdah" button styled with Islamic geometric design
+- [x] **NAV-02**: User can tap "Burdah" to open a list of available burdah poems
+- [x] **NAV-03**: User can navigate back from any screen to the previous screen
 
 ### Reading
 
@@ -78,9 +78,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SPLSH-02 | Phase 4 | Pending |
 | SPLSH-03 | Phase 4 | Pending |
 | SPLSH-04 | Phase 4 | Pending |
-| NAV-01 | Phase 3 | Pending |
-| NAV-02 | Phase 3 | Pending |
-| NAV-03 | Phase 3 | Pending |
+| NAV-01 | Phase 3 | Complete |
+| NAV-02 | Phase 3 | Complete |
+| NAV-03 | Phase 3 | Complete |
 | READ-01 | Phase 2 | Complete |
 | READ-02 | Phase 2 | Complete |
 | READ-03 | Phase 2 | Complete |
