@@ -155,7 +155,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'In the name of Allah, the Most Gracious, '
+                    'In the name of Allah SWT, the Most Gracious, '
                     'the Most Merciful',
                     style: TextStyle(
                       fontSize: 14,
