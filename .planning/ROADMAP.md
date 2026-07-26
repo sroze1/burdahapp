@@ -81,11 +81,11 @@ Plans:
   3. User can tap a list entry to open the PDF reader for that specific burdah
   4. User can navigate back from the reader to the list, and from the list to home, using standard back navigation on any screen
 
-**Plans:** 1 plan
+**Plans:** 1/1 plans executed
 Plans:
 **Wave 1**
 
-- [ ] 03-01-PLAN.md — End-to-end navigation flow: go_router with fade transitions, Provider DI, Home/List/Reveal/Reader screens, transitional reveal image
+- [x] 03-01-PLAN.md — End-to-end navigation flow: go_router with fade transitions, Provider DI, Home/List/Reveal/Reader screens, transitional reveal image
 
 **UI hint**: yes
 
@@ -114,5 +114,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation, Data Architecture & Design System | 2/2 | Complete | 2026-07-25 |
 | 2. Reading Experience (PDF Viewer) | 2/2 | Complete    | 2026-07-26 |
-| 3. Navigation & Primary User Flow | 0/1 | Planned | - |
+| 3. Navigation & Primary User Flow | 1/1 | In Progress|  |
 | 4. Splash Experience & Release Readiness | 0/TBD | Not started | - |
