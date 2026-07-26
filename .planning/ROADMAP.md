@@ -102,7 +102,16 @@ Plans:
   3. Splash fades smoothly into the Home screen once the animation/audio completes
   4. Audio behaves correctly on iOS with the silent switch engaged (respects device muting, never crashes or hangs) and app icons/permissions are ready for store submission
 
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+**Wave 1**
+
+- [ ] 04-01-PLAN.md — End-to-end animated Bismillah splash: asset preparation, SplashScreen widget with flutter_animate chains and audioplayers, route wiring, human verification
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 04-02-PLAN.md — Release packaging: native splash config, app icons, Android signing, store listing metadata
+
 **UI hint**: yes
 
 ## Progress
@@ -115,4 +124,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Foundation, Data Architecture & Design System | 2/2 | Complete | 2026-07-25 |
 | 2. Reading Experience (PDF Viewer) | 2/2 | Complete    | 2026-07-26 |
 | 3. Navigation & Primary User Flow | 1/1 | Complete    | 2026-07-26 |
-| 4. Splash Experience & Release Readiness | 0/TBD | Not started | - |
+| 4. Splash Experience & Release Readiness | 0/2 | Planning complete | - |
