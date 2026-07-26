@@ -94,7 +94,11 @@ class _BurdahListScreenState extends State<BurdahListScreen> {
                 final burdah = burdahs[index];
                 return BurdahListRow(
                   burdah: burdah,
-                  onTap: () => context.push('/burdahs/${burdah.id}'),
+                  onTap: () => context.push(
+                    burdah.transitionImageAsset != null
+                        ? '/burdahs/${burdah.id}/reveal'
+                        : '/burdahs/${burdah.id}',
+                  ),
                 );
               },
             );

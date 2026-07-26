@@ -12,12 +12,19 @@ class Burdah {
   final String pdfAsset;
   final int sortOrder;
 
+  /// Optional path to a full-screen transitional reveal image shown before
+  /// the reader opens (D-05/D-09). Stays optional per the ARCH-03
+  /// extensibility contract — future burdahs may omit it, in which case the
+  /// reveal step is skipped entirely (see BurdahListScreen).
+  final String? transitionImageAsset;
+
   const Burdah({
     required this.id,
     required this.title,
     this.titleArabic,
     required this.pdfAsset,
     required this.sortOrder,
+    this.transitionImageAsset,
   });
 
   /// Builds a [Burdah] from a decoded JSON map.
@@ -53,6 +60,7 @@ class Burdah {
       titleArabic: json['titleArabic'] as String?,
       pdfAsset: pdfAsset,
       sortOrder: json['sortOrder'] as int? ?? 0,
+      transitionImageAsset: json['transitionImageAsset'] as String?,
     );
   }
 }

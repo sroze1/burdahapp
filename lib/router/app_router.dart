@@ -6,6 +6,7 @@ import '../data/models/burdah.dart';
 import '../data/repositories/burdah_repository.dart';
 import '../screens/burdah_list_screen.dart';
 import '../screens/burdah_reader_screen.dart';
+import '../screens/burdah_reveal_screen.dart';
 import '../screens/home_screen.dart';
 
 /// App-wide declarative route table (RESEARCH.md Pattern 1).
@@ -26,6 +27,13 @@ final appRouter = GoRouter(
       path: '/burdahs',
       pageBuilder: (context, state) =>
           _fadePage(state, const BurdahListScreen()),
+    ),
+    GoRoute(
+      path: '/burdahs/:id/reveal',
+      pageBuilder: (context, state) => _fadePage(
+        state,
+        BurdahRevealScreen(burdahId: state.pathParameters['id']!),
+      ),
     ),
     GoRoute(
       path: '/burdahs/:id',
