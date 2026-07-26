@@ -105,7 +105,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 )
                 .then()
                 .custom(
-                  duration: 2800.ms,
+                  duration: 3800.ms,
                   builder: (context, value, child) => ColorFiltered(
                     colorFilter: ColorFilter.matrix(
                       _saturationMatrix(1.4),
@@ -187,7 +187,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 )
                 .then()
                 .custom(
-                  duration: 2800.ms,
+                  duration: 3800.ms,
                   builder: (context, value, child) {
                     final breath = math.sin(value * 2 * math.pi);
                     final alpha = 0.7 + 0.25 * breath;
