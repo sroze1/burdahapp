@@ -8,6 +8,7 @@ import '../screens/burdah_list_screen.dart';
 import '../screens/burdah_reader_screen.dart';
 import '../screens/burdah_reveal_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/splash_screen.dart';
 
 /// App-wide declarative route table (RESEARCH.md Pattern 1).
 ///
@@ -21,6 +22,10 @@ final appRouter = GoRouter(
   routes: [
     GoRoute(
       path: '/',
+      pageBuilder: (context, state) => _fadePage(state, const SplashScreen()),
+    ),
+    GoRoute(
+      path: '/home',
       pageBuilder: (context, state) => _fadePage(state, const HomeScreen()),
     ),
     GoRoute(
