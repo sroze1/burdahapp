@@ -12,7 +12,12 @@ Users can read Burdah poems in a beautiful, distraction-free experience that hon
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ Page-by-page PDF viewer with swipe navigation (book-like reading) — Phase 2
+- ✓ Double-tap-to-zoom on PDF pages (with pinch fine-adjustment once zoomed) — Phase 2
+- ✓ PDF renders original Arabic calligraphy faithfully (PDFium rasterization, no text extraction) — Phase 2
+- ✓ RTL page-turn direction (swipe left advances forward) — Phase 2
+- ✓ Islamic-themed reader chrome (styled AppBar, gold-accented Arabic subtitle) — Phase 2
+- ✓ Offline PDF loading from bundled assets (zero network dependency) — Phase 2
 
 ### Active
 
@@ -22,8 +27,6 @@ Users can read Burdah poems in a beautiful, distraction-free experience that hon
 - [ ] Main screen with prominent "Burdah" button
 - [ ] Burdah list page showing available burdah poems
 - [ ] Burdah of Sayyida Khadija RA as first entry
-- [ ] Page-by-page PDF viewer with swipe navigation (book-like reading)
-- [ ] Pinch-to-zoom on PDF pages
 - [ ] Islamic geometric design with Turkish/Ghazali color palette
 - [ ] Calligraphic typography throughout
 - [ ] Works on both Android (Play Store) and iOS (App Store)
@@ -58,9 +61,11 @@ Users can read Burdah poems in a beautiful, distraction-free experience that hon
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Flutter over React Native | Best for custom animations, beautiful UI, single codebase, excellent PDF libraries | — Pending |
-| PDF viewer over text extraction | Preserves original calligraphy/layout; text extraction accuracy uncertain | — Pending |
-| Page-by-page over scroll | Book-like reading experience more appropriate for sacred poetry | — Pending |
+| Flutter over React Native | Best for custom animations, beautiful UI, single codebase, excellent PDF libraries | Validated — Phase 1+2 |
+| PDF viewer over text extraction | Preserves original calligraphy/layout; text extraction accuracy uncertain | Validated — Phase 2, PDFium rasterization renders faithfully |
+| Page-by-page over scroll | Book-like reading experience more appropriate for sacred poetry | Validated — Phase 2 |
+| pdfrx 2.4.7 (PDFium engine) | Consistent cross-platform rendering, actively maintained, MIT license | Validated — Phase 2 |
+| Double-tap-to-zoom over continuous pinch-from-1x | InteractiveViewer's ScaleGestureRecognizer blocks PageView swipe at 1x scale; double-tap avoids gesture-arena conflict | Validated — Phase 2 |
 
 ## Evolution
 
@@ -80,4 +85,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-24 after initialization*
+*Last updated: 2026-07-26 after Phase 2*

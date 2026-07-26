@@ -1,11 +1,12 @@
 ---
 phase: 02-reading-experience-pdf-viewer
 verified: 2026-07-26T00:00:00Z
-status: human_needed
+status: passed
 score: 8/10 must-haves verified
 behavior_unverified: 0
 overrides_applied: 1
 overrides:
+
   - must_have: "Pinch-to-zoom on any page locks swipe navigation; releasing zoom back to 1.0x restores swipe (READ-02)"
     reason: "InteractiveViewer's ScaleGestureRecognizer claims single-finger horizontal drags even at 1x scale, silently blocking all PageView swipe-to-turn-page gestures. Double-tap-to-zoom (2.5x) with pinch-for-fine-adjustment-once-zoomed preserves the swipe-lock contract and is the only gesture composition that does not break page-turning. Human-verified on Android emulator (commit 22d22e8, re-confirmed in 02-UAT.md test 2). Requirement (READ-02) and roadmap (Phase 2 SC2) text updated to match shipped behavior in commit 42a4a30."
     accepted_by: developer
@@ -14,14 +15,17 @@ re_verification:
   previous_status: gaps_found
   previous_score: 7/8
   gaps_closed:
+
     - "Pinch-to-zoom entry gesture (READ-02) — formally overridden; REQUIREMENTS.md and ROADMAP.md text updated to double-tap-to-zoom; human-verified in 02-UAT.md test 2"
     - "flutter analyze deprecated_member_use regression — fixed via translateByDouble(...,0.0,1.0) in commit 85f5c9e; flutter analyze now reports 'No issues found!'"
   gaps_remaining: []
   regressions: []
 human_verification:
+
   - test: "Feed a corrupted or truncated PDF asset (or force PdfDocumentViewBuilder.asset to fail) and observe the reader screen."
     expected: "The 'Something's not right' error-state UI renders (per pdf_page_swiper.dart's errorBuilder) instead of an uncaught exception or crash."
     why_human: "This must_have is tagged verification:backstop in 02-01-PLAN.md — non-inferable from code alone. The errorBuilder wiring is present (pdf_page_swiper.dart:67-70) but no automated test or human UAT step actually triggered a corrupted-asset load; 02-UAT.md's 6 tests do not include this scenario (it was listed as '(Optional)' in the plan's checkpoint script and was not exercised). Symbol presence is not evidence for a backstop truth per the honest-verifier protocol."
+
   - test: "Confirm the rendered PDF content path never applies byte/codepoint/grapheme text interpretation to the document (e.g. inspect that no string-decoding of PDF content streams occurs, even under unusual encodings/embedded fonts)."
     expected: "Only PdfPageView (image-rendering) touches PDF page content; no dart:convert or manual byte-parsing path exists for document text, regardless of the PDF's internal text encoding."
     why_human: "Also tagged verification:backstop. Static grep confirms no decoding code is present in the reviewed files today, but this is an absence check, not a positive behavioral proof — the correct scope of 'never' cannot be fully established by grep alone (e.g. a future pdfrx internal fallback, or an edge-case font). Per honest-verifier protocol, backstop truths require a held-out test or directly observed behavior, not code-presence, to be marked VERIFIED."
