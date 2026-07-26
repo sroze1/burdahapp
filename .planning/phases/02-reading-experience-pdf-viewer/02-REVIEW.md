@@ -1,6 +1,6 @@
 ---
 phase: 02-reading-experience-pdf-viewer
-reviewed: 2026-07-25T21:30:00Z
+reviewed: 2026-07-26T00:00:00Z
 depth: standard
 files_reviewed: 4
 files_reviewed_list:
@@ -10,148 +10,125 @@ files_reviewed_list:
   - lib/screens/design_system_test_screen.dart
 findings:
   critical: 0
-  warning: 6
-  info: 7
+  warning: 4
+  info: 9
   total: 13
 status: issues_found
 ---
 
 # Phase 02: Code Review Report
 
-**Reviewed:** 2026-07-25T21:30:00Z
+**Reviewed:** 2026-07-26T00:00:00Z
 **Depth:** standard
 **Files Reviewed:** 4
 **Status:** issues_found
 
-## Summary
-
-Reviewed the four Phase 02 source files: the pinch/double-tap zoom wrapper, the RTL page swiper, the reader screen shell, and the Phase 1 design-system verification screen. Structurally the implementation is sound — controller lifecycle is correct (created in `initState`, disposed in `dispose`), the RTL page order is wired correctly (`reverse: true`), the swipe-lock-while-zoomed mechanism is reset defensively on every page change, and the corrupted-PDF error path is handled without an uncaught crash, matching the RESEARCH.md security requirement.
-
-No BLOCKER/critical issues were found (no security vulnerabilities, no confirmed crashes, no data loss). However several logic and quality defects were found that should be fixed: double-tap-to-zoom always anchors on the top-left corner instead of the tapped point (a real UX defect, and particularly poor for RTL Arabic content where the eye starts top-right); the `onZoomChanged` callback fires on every animation/gesture frame instead of only on state transitions, misrepresenting its own contract; PDF/catalog load errors are silently discarded with no logging anywhere; a `ThemeExtension` lookup is force-unwrapped in two places with no defensive fallback; and a state field is mutated as a side effect from inside a `FutureBuilder` builder callback (works today only by accident of idempotence, violates Flutter's build-purity contract).
-
 ## Narrative Findings (AI reviewer)
+
+### Summary
+
+This is a re-review of the current state of these four files, which already reflects fixes from an earlier review pass (`02-REVIEW-FIX.md`): the double-tap zoom now correctly anchors on the tapped point via `onDoubleTapDown`, `onZoomChanged` is now gated to fire only on state transitions, load errors are now logged via `debugPrint`, the `ThemeExtension` lookup now has an `assert` + safe fallback instead of a force-unwrap, and the Arabic AppBar subtitle now has `maxLines`/`overflow` protection. Those items are confirmed resolved and are not repeated below.
+
+No BLOCKER/critical issues were found in the current code — no crashes, no security vulnerabilities, no data loss. However, one of the earlier fixes (moving the catalog-load future into `initState`) introduced a new latent gap (WR-01 below), and several issues from the previous review pass remain genuinely unresolved in the current code (confirmed by direct re-reading, listed under Info). Additionally, two new robustness gaps were found: a zero-page PDF produces a silent blank screen instead of an error state, and manually pinch-zooming back to 1.0x (as opposed to double-tapping) can leave the page visually panned off-center while swipe re-enables.
 
 ## Warnings
 
-### WR-01: Double-tap zoom always anchors on the top-left corner, not the tap location
+### WR-01: Future chain has no error handler — can surface an unhandled-exception zone error
 
-**File:** `lib/widgets/zoomable_pdf_page.dart:64-73`
-**Issue:** `_handleDoubleTap` is wired to `GestureDetector(onDoubleTap: ...)`, which gives no tap coordinates. The zoom-in transform is built as `Matrix4.identity()..scaleByDouble(s, s, 1.0, 1.0)` — a pure scale around the origin, with no translation toward the tap point. Every double-tap-to-zoom therefore always reveals the top-left corner of the page, regardless of where the user double-tapped. For this RTL Arabic reading app, where the reader's eye naturally starts at the top-right, this forces an extra pan after every single zoom-in and is a genuine interaction-quality defect, not a style nit.
-**Fix:** Capture the tap position via `onDoubleTapDown` and compute a focal-point-aware matrix that keeps that point fixed under the finger:
+**File:** `lib/screens/design_system_test_screen.dart:37-39`
+**Issue:** `_burdahsFuture` is assigned via `AssetBurdahRepository().getAll()..then((burdahs) => _loadedBurdahs = burdahs);`. The cascade (`..`) means `_burdahsFuture` holds the *original* future, while `.then()` creates a **separate, discarded** future. If `getAll()` completes with an error, that discarded future also completes with an error, and because nothing attaches an `onError`/`catchError` to it, Dart's zone error handling reports it as an unhandled exception — independent of the `FutureBuilder`'s own error handling below, which only catches errors on its own listener chain, not on this one. (This gap was introduced by the earlier fix that moved the field assignment out of `build()` into this `initState` cascade — the move was correct, but the derived future's error path was left unguarded.)
+**Fix:**
 ```dart
-Offset? _doubleTapPosition;
-
-GestureDetector(
-  onDoubleTapDown: (details) => _doubleTapPosition = details.localPosition,
-  onDoubleTap: _handleDoubleTap,
-  child: InteractiveViewer(...),
-)
-
-void _handleDoubleTap() {
-  final s = ZoomablePdfPage._doubleTapScale;
-  final Matrix4 end;
-  if (_isZoomed) {
-    end = Matrix4.identity();
-  } else {
-    final pos = _doubleTapPosition ?? Offset.zero;
-    end = Matrix4.identity()
-      ..translate(pos.dx * (1 - s), pos.dy * (1 - s))
-      ..scaleByDouble(s, s, 1.0, 1.0);
-  }
-  _animation = Matrix4Tween(begin: _controller.value, end: end).animate(
-    CurvedAnimation(parent: _animController, curve: Curves.easeInOut),
+_burdahsFuture = AssetBurdahRepository().getAll()
+  ..then(
+    (burdahs) => _loadedBurdahs = burdahs,
+    onError: (_) {}, // FutureBuilder below already surfaces the error to the user
   );
-  _animController.forward(from: 0);
-}
 ```
 
-### WR-02: `onZoomChanged` callback fires on every transform frame, not just on state transitions
+### WR-02: No empty/zero-page state when a bundled PDF resolves with zero pages
 
-**File:** `lib/widgets/zoomable_pdf_page.dart:55-62`
-**Issue:** `widget.onZoomChanged(zoomed)` is invoked unconditionally at the end of `_handleTransformChanged`, which itself runs on every frame of the 200ms zoom animation and on every pixel of a live pinch gesture. Only the internal `setState` is gated by `if (_isZoomed != zoomed)`. The current consumer (`PdfPageSwiper._handleZoomChanged`) happens to independently guard against redundant `setState`, so no bug manifests today, but the callback's own contract ("notify when zoom changes") is violated — any future consumer that assumes "fires only on transition" (e.g. to trigger an analytics event or a one-shot animation) will fire repeatedly per gesture.
-**Fix:** Move the callback inside the guarded branch:
+**File:** `lib/widgets/pdf_page_swiper.dart:71-90`
+**Issue:** `pageCount` is `0` only when `document` itself is `null` (handled by `loadingBuilder`/`errorBuilder`). If the asset loads successfully but PDFium reports zero pages (an empty-but-technically-valid or subtly corrupt document), `PageView.builder(itemCount: 0, ...)` silently renders nothing — no error copy, no signal to the user. This is inconsistent with the explicit corrupted-PDF handling already built for the `errorBuilder` path (RESEARCH.md Security Domain V5: corrupted/unreadable PDF asset must not silently fail).
+**Fix:**
+```dart
+builder: (context, document) {
+  final pageCount = document?.pages.length ?? 0;
+  if (document != null && pageCount == 0) {
+    return _buildErrorState(context); // reuse existing copy
+  }
+  return PageView.builder(/* ... */);
+},
+```
+
+### WR-03: Pinch-zooming back to 1.0x (without double-tap) leaves the page panned off-center while swipe re-enables
+
+**File:** `lib/widgets/zoomable_pdf_page.dart:56-63`
+**Issue:** `_handleTransformChanged` only checks `scale > _zoomEpsilon` to decide `_isZoomed`. `minScale: 1.0` on `InteractiveViewer` clamps scale but does **not** clamp translation — a user can pinch-zoom while panned toward a corner and release exactly at `scale == 1.0`. At that point `_isZoomed` flips to `false`, `panEnabled`/`scaleEnabled` become `false` (interaction locked out until the next double-tap), and `PdfPageSwiper` unlocks swipe — but `_controller.value` is never reset to `Matrix4.identity()`. The page is left visibly cropped/off-center with no way to fix it except double-tapping again (whose zoom-out branch *does* reset to identity, but only on that explicit gesture). The automatic reset to identity only happens inside `_handleDoubleTap`'s zoom-out branch, never from the transform-changed listener itself.
+**Fix:** Snap to identity whenever the zoomed state transitions to false, regardless of how it got there:
 ```dart
 void _handleTransformChanged() {
   final scale = _controller.value.getMaxScaleOnAxis();
   final zoomed = scale > ZoomablePdfPage._zoomEpsilon;
   if (_isZoomed != zoomed) {
+    if (!zoomed) {
+      _controller.value = Matrix4.identity();
+    }
     setState(() => _isZoomed = zoomed);
     widget.onZoomChanged(zoomed);
   }
 }
 ```
+Verify with a manual pinch-out test that re-entrant assignment inside the controller's own listener doesn't cause an extra rebuild loop.
 
-### WR-03: PDF/catalog load errors are silently discarded with no logging
+### WR-04: `build()` in `DesignSystemTestScreen` is a ~250-line monolith mixing seven unrelated concerns
 
-**File:** `lib/widgets/pdf_page_swiper.dart:67`, `lib/screens/design_system_test_screen.dart:84-108`
-**Issue:** `PdfDocumentViewBuilder.asset`'s `errorBuilder: (context, error, stackTrace) => _buildErrorState(context)` receives `error` and `stackTrace` but drops both without logging. Likewise, the `FutureBuilder`'s `snapshot.hasError` branch in `design_system_test_screen.dart` never reads `snapshot.error`. If the bundled PDF asset or the catalog JSON is ever corrupted or missing in a release build, there is zero diagnostic trail — not even in the debug console — to distinguish "asset missing" from "PDF parse failure" from "malformed catalog JSON."
-**Fix:**
-```dart
-errorBuilder: (context, error, stackTrace) {
-  debugPrint('PDF load failed: $error\n$stackTrace');
-  return _buildErrorState(context);
-},
-```
-and in the `FutureBuilder`'s `hasError` branch: `debugPrint('Burdah catalog load failed: ${snapshot.error}');`
-
-### WR-04: Force-unwrapped `ThemeExtension` lookup risks a crash with no fallback
-
-**File:** `lib/screens/burdah_reader_screen.dart:29`, `lib/screens/design_system_test_screen.dart:63`
-**Issue:** Both screens do `Theme.of(context).extension<BurdahColors>()!`. If `BurdahColors` is ever missing from the active `ThemeData` (a theme swap, a test harness that doesn't register the extension, a future refactor that forgets to re-attach it to a new `ThemeData`), this throws `Null check operator used on a null value` and crashes the whole screen with a stack trace that points at the call site rather than the actual theme-configuration bug.
-**Fix:**
-```dart
-final burdahColors = Theme.of(context).extension<BurdahColors>();
-assert(burdahColors != null, 'BurdahColors extension missing from ThemeData — check theme setup');
-```
-At minimum, document the invariant; ideally provide a safe fallback constant.
-
-### WR-05: Arabic subtitle in the AppBar has no overflow protection inside a fixed-height slot
-
-**File:** `lib/screens/burdah_reader_screen.dart:36-51`
-**Issue:** `PreferredSize(preferredSize: const Size.fromHeight(32), ...)` wraps `Text(burdah.titleArabic!, ...)` with no `maxLines`/`overflow` set. With only ~24px of usable height after the 8px bottom padding, any Arabic title long enough to wrap to two lines — or one that renders slightly taller due to diacritics (tashkīl) in the Amiri/Scheherazade fonts — will overflow the box, producing clipped text or a `RenderFlex overflowed` warning. Since burdah titles are data-driven (per the project's stated "add more burdahs without code changes" requirement), a future entry with a longer title will hit this.
-**Fix:**
-```dart
-Text(
-  burdah.titleArabic!,
-  style: textTheme.bodyLarge?.copyWith(color: burdahColors.gold),
-  textAlign: TextAlign.center,
-  maxLines: 1,
-  overflow: TextOverflow.ellipsis,
-)
-```
-
-### WR-06: State field mutated as a side effect inside a `FutureBuilder` builder callback
-
-**File:** `lib/screens/design_system_test_screen.dart:109-114`
-**Issue:** `_loadedBurdahs = burdahs;` is a direct field assignment executed from within the `builder` callback of a `FutureBuilder`, i.e. as a side effect of a build-phase function. Flutter's contract is that `build` (and anything called from it) should be side-effect-free/idempotent with respect to framework state. This currently works only because the assignment happens to be idempotent (same value every time the future resolves) and nothing else reads `_loadedBurdahs` synchronously during the same build pass. The inline comment justifying this ("no extra rebuild needed") addresses the wrong concern — the issue is build purity, not rebuild efficiency — and this is a fragile pattern that could break silently if the surrounding logic changes.
-**Fix:** Resolve the future once in `initState` and store the result via `.then()` instead of inside `build()`:
-```dart
-@override
-void initState() {
-  super.initState();
-  _burdahsFuture = AssetBurdahRepository().getAll()
-    ..then((burdahs) => _loadedBurdahs = burdahs);
-}
-```
+**File:** `lib/screens/design_system_test_screen.dart:62-313`
+**Issue:** A single `build()` method spans catalog-data verification, two font-shaping test blocks, a color-palette swatch grid, two geometric-frame demos, and a CTA button — each with its own `Divider`/heading boilerplate. This is roughly 5x the "functions over 50 lines" complexity guideline and increases the chance that an edit to one demo section accidentally breaks another via shared local state (`_loadedBurdahs`, `_burdahsFuture`).
+**Fix:** Extract each labeled section into a private method returning `Widget` (e.g. `_buildCatalogSection`, `_buildFontSection`, `_buildPaletteSection`, `_buildBorderFrameSection`, `_buildCardFrameSection`, `_buildCtaSection`), called in sequence from `build()`. Purely mechanical, no behavior change. Lower priority given this is a documented Phase 1 throwaway screen — but flagging since throwaway screens have a habit of outliving their intended lifespan.
 
 ## Info
 
-### IN-01: Unreachable null check in `PageView.builder`'s `itemBuilder`
+### IN-01: Dead null-check in `PdfPageSwiper.itemBuilder`
 
-**File:** `lib/widgets/pdf_page_swiper.dart:69, 78-79`
-**Issue:** `pageCount` is computed as `document?.pages.length ?? 0`. When `document` is `null`, `pageCount` is `0`, so `PageView.builder(itemCount: 0, ...)` never invokes `itemBuilder` at all. The `if (document == null) return const SizedBox.shrink();` guard inside `itemBuilder` is therefore dead code under the current wiring.
-**Fix:** Remove the guard with a comment noting `itemCount` already guarantees `document != null` inside `itemBuilder`, or keep it but document why it's intentionally defensive.
+**File:** `lib/widgets/pdf_page_swiper.dart:82`
+**Issue:** `if (document == null) return const SizedBox.shrink();` inside `itemBuilder` is unreachable: `pageCount` (used for `itemCount`) is computed as `document?.pages.length ?? 0` in the same `builder` invocation, so whenever `document` is `null`, `itemCount` is `0` and `PageView.builder` never calls `itemBuilder` at all in that build pass.
+**Fix:** Remove the redundant check, or add a comment clarifying it's intentionally defensive against a specific pdfrx re-entrancy case if one exists.
 
-### IN-02: Duplicated error-state copy and layout across two files
+### IN-02: Leftover `print()` debug statement (with lint suppression)
 
-**File:** `lib/widgets/pdf_page_swiper.dart:91-120`, `lib/screens/design_system_test_screen.dart:84-108`
-**Issue:** The "Something's not right" / "This couldn't be loaded. Please restart the app, or reinstall it if the problem continues." copy, styling, and layout structure is duplicated verbatim in both files. A future copy or styling change requires remembering to update both call sites in lockstep.
+**File:** `lib/screens/design_system_test_screen.dart:41-50`
+**Issue:** `_handleReadBurdahPressed` uses `print(...)` guarded by `// ignore: avoid_print` as a Phase 1 no-op fallback. `print()` is unbuffered and will show up in release logs if this screen is ever left reachable in a shipped build.
+**Fix:** Use `debugPrint(...)` (already the established pattern elsewhere in this same file and in `pdf_page_swiper.dart`) instead of `print` + lint suppression.
+
+### IN-03: Single-letter local variable name
+
+**File:** `lib/widgets/zoomable_pdf_page.dart:66`
+**Issue:** `final s = ZoomablePdfPage._doubleTapScale;` — single-letter name reduces readability of the surrounding matrix math.
+**Fix:** Rename to `targetScale` or similar.
+
+### IN-04: Duplicated magic-number padding instead of the named-constant pattern already established in this same phase
+
+**File:** `lib/screens/design_system_test_screen.dart:97, 122, 141`
+**Issue:** `vertical: 16` is repeated three times inline for the loading/error/empty states, while the sibling file `pdf_page_swiper.dart` extracts the equivalent value into a named `_errorStateVerticalPadding` constant. Inconsistent pattern within the same phase's codebase.
+**Fix:** Extract a `static const double _sectionVerticalPadding = 16;` and reuse it across all three states.
+
+### IN-05: `assert(themeBurdahColors != null, ...)` boilerplate duplicated verbatim
+
+**File:** `lib/screens/burdah_reader_screen.dart:30-34` and `lib/screens/design_system_test_screen.dart:65-69`
+**Issue:** Identical four-line assert-then-fallback pattern for resolving `BurdahColors` from `Theme.of(context)` is copy-pasted across both screens.
+**Fix:** Add a small extension, e.g. `extension BurdahThemeX on BuildContext { BurdahColors get burdahColors => ... }`, encapsulating the assert + fallback once.
+
+### IN-06: Error-state widget fully duplicated across two files (still open from prior review)
+
+**File:** `lib/widgets/pdf_page_swiper.dart:94-123`, `lib/screens/design_system_test_screen.dart:90-116`
+**Issue:** The "Something's not right" / "This couldn't be loaded. Please restart the app, or reinstall it if the problem continues." copy, styling, and layout structure is duplicated verbatim in both files. A future copy or styling change requires remembering to update both call sites in lockstep. Confirmed still present in the current code.
 **Fix:** Extract a shared `ErrorStateView` widget into `lib/widgets/` and use it from both places.
 
-### IN-03: Error state UI has no horizontal padding
+### IN-07: Error state has no horizontal padding, text can touch screen edges (still open from prior review)
 
-**File:** `lib/widgets/pdf_page_swiper.dart:96-99`
-**Issue:** The error state's `Padding` uses `EdgeInsetsDirectional.symmetric(vertical: _errorStateVerticalPadding)`, providing 16px vertical padding but 0px horizontal. `PdfPageSwiper` is placed directly under a bare `SafeArea` in `BurdahReaderScreen` with no horizontal inset, so the error text can touch the screen edges on narrow devices. (The near-identical error block in `design_system_test_screen.dart` doesn't have this problem only because its parent `SingleChildScrollView` already applies `EdgeInsetsDirectional.all(16)`.)
+**File:** `lib/widgets/pdf_page_swiper.dart:99-102`
+**Issue:** `_buildErrorState`'s `Padding` uses `EdgeInsetsDirectional.symmetric(vertical: _errorStateVerticalPadding)` — 16px vertical, 0px horizontal. `PdfPageSwiper` sits directly under a bare `SafeArea` in `BurdahReaderScreen` with no horizontal inset of its own, so the error text can touch the screen edges on narrow devices. Confirmed still present in the current code.
 **Fix:**
 ```dart
 padding: const EdgeInsetsDirectional.symmetric(
@@ -160,32 +137,20 @@ padding: const EdgeInsetsDirectional.symmetric(
 ),
 ```
 
-### IN-04: `print()` debug statement left in the code path
+### IN-08: `GoldCtaButton` gives no visible feedback while data is loading or has errored (still open from prior review)
 
-**File:** `lib/screens/design_system_test_screen.dart:44-49`
-**Issue:** `print(...)` (with an `// ignore: avoid_print` suppression) is used for the "tapped before burdahs loaded" fallback. Even though this screen is documented as throwaway Phase 1 verification, `print()` is unbuffered and will show up in release logs if this screen is ever left wired into a build.
-**Fix:** Replace with `debugPrint(...)`, or remove once this screen is deleted per its own "throwaway" documentation.
+**File:** `lib/screens/design_system_test_screen.dart:41-58, 300-305`
+**Issue:** The CTA button renders unconditionally, independent of the `FutureBuilder`'s state. If the catalog is still loading or failed to load, tapping the button silently no-ops (only a `print`/console message) with zero user-facing feedback. Confirmed still present in the current code.
+**Fix:** `onPressed: _loadedBurdahs.isEmpty ? null : _handleReadBurdahPressed`, or surface a `SnackBar` on the no-op path. Low priority given the screen's documented throwaway status.
 
-### IN-05: `GoldCtaButton` gives no visible feedback while data is loading or has errored
+### IN-09: No explicit keys on `ZoomablePdfPage` items in `PageView.builder` (still open from prior review)
 
-**File:** `lib/screens/design_system_test_screen.dart:40-58, 296-301`
-**Issue:** The CTA button renders unconditionally, independent of the `FutureBuilder`'s state. If the catalog is still loading or failed to load, tapping the button silently no-ops (only a console `print`) with zero user-facing feedback.
-**Fix:** Disable while unavailable — `onPressed: _loadedBurdahs.isEmpty ? null : _handleReadBurdahPressed` — or surface a `SnackBar` on the no-op path. Low priority given the screen's documented throwaway status.
-
-### IN-06: No explicit keys on `ZoomablePdfPage` items in `PageView.builder`
-
-**File:** `lib/widgets/pdf_page_swiper.dart:78-85`
-**Issue:** Each `ZoomablePdfPage` built in `itemBuilder` has no `key`. Given `itemCount` is fixed once the document loads, this is not currently exploitable as a state-leak bug (Flutter's sliver child management is index-keyed here), but it's a defensive-coding gap relative to the file's own stated goal ("zoom on one page cannot leak into another") — an explicit key documents that intent and protects against future changes (e.g. dynamic `itemCount`, inserting/removing pages) silently reintroducing state-leak risk.
+**File:** `lib/widgets/pdf_page_swiper.dart:81-88`
+**Issue:** Each `ZoomablePdfPage` built in `itemBuilder` has no `key`. Not currently exploitable as a state-leak bug given `itemCount` is fixed once the document loads, but it's a defensive-coding gap relative to the file's own stated goal ("zoom on one page cannot leak into another") — an explicit key documents that intent and guards against future changes (e.g. dynamic `itemCount`, inserting/removing pages) silently reintroducing state-leak risk. Confirmed still present in the current code.
 **Fix:** `ZoomablePdfPage(key: ValueKey(index), ...)`.
-
-### IN-07: Overly long, multi-concern `build()` method
-
-**File:** `lib/screens/design_system_test_screen.dart:61-309`
-**Issue:** The `build()` method is roughly 250 lines and mixes catalog-loading UI, two font-shaping test blocks, a color-swatch grid, two frame-widget demos, and a CTA button — high cyclomatic complexity in one function. Acceptable for a throwaway Phase 1 screen, but worth flagging since throwaway verification screens have a habit of outliving their intended lifespan.
-**Fix:** If retained past Phase 1, split each section into its own private widget method or `StatelessWidget` (e.g. `_CatalogSection`, `_FontShapingSection`, `_ColorPaletteSection`).
 
 ---
 
-_Reviewed: 2026-07-25T21:30:00Z_
+_Reviewed: 2026-07-26T00:00:00Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
