@@ -25,7 +25,7 @@ void main() {
     // Home) so no Timer is left pending when the test tears down the
     // widget tree (avoids a "Timer still pending" test-framework
     // assertion — this is test-harness only, not a runtime bug).
-    await tester.pump(const Duration(seconds: 7));
+    await tester.pump(const Duration(milliseconds: 7200));
 
     expect(tester.takeException(), isNull);
   });
