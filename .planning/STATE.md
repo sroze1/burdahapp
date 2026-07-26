@@ -4,16 +4,16 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 02
 current_phase_name: reading-experience-pdf-viewer
-status: verifying
-stopped_at: Completed 02-01-PLAN.md — PDF reading experience verified on emulator
-last_updated: "2026-07-25T21:01:20.526Z"
-last_activity: 2026-07-25
+status: executing
+stopped_at: "Completed 02-02-PLAN.md — Phase 2 gap closure: deprecated API fixed, double-tap-to-zoom deviation formalized, Phase 2 verification now passes 8/8"
+last_updated: "2026-07-26T01:23:23.551Z"
+last_activity: 2026-07-26
 last_activity_desc: Phase 02 execution started
 progress:
   total_phases: 2
   completed_phases: 2
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 4
+  completed_plans: 4
 ---
 
 # Project State
@@ -28,9 +28,9 @@ See: .planning/PROJECT.md (updated 2026-07-24)
 ## Current Position
 
 Phase: 02 (reading-experience-pdf-viewer) — EXECUTING
-Plan: 1 of 1
-Status: Phase complete — ready for verification
-Last activity: 2026-07-25 — Phase 02 execution started
+Plan: 2 of 2
+Status: Ready to execute
+Last activity: 2026-07-26 — Phase 02 execution started
 
 Progress: [██████████] 100%
 
@@ -59,6 +59,7 @@ Progress: [██████████] 100%
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 02 P01 | 65 | 2 tasks | 6 files |
+| Phase 02 P02 | 8 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,7 @@ Recent decisions affecting current work:
 - Roadmap: Calligraphic font choice (Scheherazade New vs. Amiri vs. Reem Kufi) deliberately left open — resolved via throwaway test screen during Phase 1 planning/execution.
 - [Phase 02]: Confirmed PdfPageView (pdfrx 2.4.7) has no built-in zoom — InteractiveViewer wrapping required (resolves RESEARCH.md Assumption A1)
 - [Phase 02]: Switched ZoomablePdfPage from continuous pinch-from-1x to double-tap-to-zoom after discovering InteractiveViewer's ScaleGestureRecognizer blocked PageView swipe at 1x scale (commit 22d22e8)
+- [Phase 02]: Formally accepted double-tap-to-zoom (not pinch-from-1x) as READ-02's shipped behavior via VERIFICATION.md override; updated REQUIREMENTS.md and ROADMAP.md wording to match
 
 ### Pending Todos
 
@@ -93,6 +95,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-25T21:01:20.517Z
-Stopped at: Completed 02-01-PLAN.md — PDF reading experience verified on emulator
+Last session: 2026-07-26T01:23:23.543Z
+Stopped at: Completed 02-02-PLAN.md — Phase 2 gap closure: deprecated API fixed, double-tap-to-zoom deviation formalized, Phase 2 verification now passes 8/8
 Resume file: None
