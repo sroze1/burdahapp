@@ -54,8 +54,11 @@ workflows:
             --build-number=$(($(app-store-connect get-latest-testflight-build-number "$APP_STORE_APP_ID" || echo 0) + 1))
       - name: Upload to App Store Connect
         script: |
-          app-store-connect publish \
-            --path build/ios/ipa/burdahapp.ipa \
-            --apple-id "$APP_STORE_APP_ID"
+          xcrun altool --upload-app \
+            --file build/ios/ipa/burdahapp.ipa \
+            --type ios \
+            --apple-id "$APP_STORE_APP_ID" \
+            --apiKey "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
     artifacts:
       - build/ios/ipa/*.ipa
