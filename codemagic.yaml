@@ -19,7 +19,7 @@ workflows:
           cd ios && pod install
       - name: Set up code signing
         script: |
-          openssl genrsa 2048 2>/dev/null > /tmp/cert_key.pem
+          echo "$CERT_KEY_BASE64" | base64 --decode > /tmp/cert_key.pem
           export CERTIFICATE_PRIVATE_KEY="$(cat /tmp/cert_key.pem)"
           app-store-connect fetch-signing-files "com.burdahapp.burdahapp" \
             --type IOS_APP_STORE \
