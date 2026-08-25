@@ -20,18 +20,12 @@ workflows:
       - name: Set up code signing
         script: |
           # Revoke any existing distribution certificates
-          app-store-connect certificates list \
-            --type DISTRIBUTION --json 2>/dev/null | \
-            python3 -c "
-          import sys, json
-          try:
-              certs = json.load(sys.stdin)
-              for c in certs:
-                  print(c['id'])
-          except: pass
-          " | while read cert_id; do
-            app-store-connect certificates revoke "$cert_id" 2>/dev/null || true
-          done
+          app-store-connect certificates list --type DISTRIBUTION --json | \
+            python3 -c "import sys,json;certs=json.load(sys.stdin);[print(c['id']) for c in certs]" 2>/dev/null | \
+            while read -r cert_id; do
+              echo "Revoking $cert_id"
+              app-store-connect certificates revoke "$cert_id" || true
+            done
           # Generate fresh RSA key and create certificate
           openssl genrsa 2048 2>/dev/null > /tmp/cert_key.pem
           export CERTIFICATE_PRIVATE_KEY="$(cat /tmp/cert_key.pem)"
