@@ -17,14 +17,23 @@ workflows:
       - name: Install CocoaPods
         script: |
           cd ios && pod install
-      - name: Revoke old certificates
-        script: |
-          app-store-connect certificates list --type DISTRIBUTION --json | \
-            python3 -c "import sys,json; [print(c['id']) for c in json.load(sys.stdin)]" | \
-            xargs -I{} app-store-connect certificates revoke {} || true
       - name: Set up code signing
         script: |
-          echo "$CERT_KEY_BASE64" | base64 --decode > /tmp/cert_key.pem
+          # Revoke any existing distribution certificates
+          app-store-connect certificates list \
+            --type DISTRIBUTION --json 2>/dev/null | \
+            python3 -c "
+          import sys, json
+          try:
+              certs = json.load(sys.stdin)
+              for c in certs:
+                  print(c['id'])
+          except: pass
+          " | while read cert_id; do
+            app-store-connect certificates revoke "$cert_id" 2>/dev/null || true
+          done
+          # Generate fresh RSA key and create certificate
+          openssl genrsa 2048 2>/dev/null > /tmp/cert_key.pem
           export CERTIFICATE_PRIVATE_KEY="$(cat /tmp/cert_key.pem)"
           app-store-connect fetch-signing-files "com.burdahapp.burdahapp" \
             --type IOS_APP_STORE \
