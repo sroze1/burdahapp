@@ -43,8 +43,10 @@ workflows:
           xcode-project use-profiles
       - name: Flutter build IPA
         script: |
+          FLUTTER_BUILD_NAME=$(grep '^version:' pubspec.yaml | sed 's/version: *//;s/+.*//')
           flutter build ipa --release \
             --export-options-plist=$HOME/export_options.plist \
+            --build-name=$FLUTTER_BUILD_NAME \
             --build-number=$(($(app-store-connect get-latest-testflight-build-number "$APP_STORE_APP_ID" || echo 0) + 1))
       - name: Upload to App Store Connect
         script: |
